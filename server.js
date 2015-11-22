@@ -40,10 +40,12 @@ var getPosts = function(res, id) {
     ph.createPage(function (page){
       var url = 'http://facebook.com/' + id;
       console.log('Getting the html for ' + url);
+
       page.open(url, function(status) {
         console.log('status', status);
 
         if (status !== 'success') {
+          ph.exit();
           return;
         }
 
@@ -106,12 +108,11 @@ app.use(allowCrossDomain);
 //Possibly use app.all(...) here, then we wouldn't need to intercept OPTIONS?
 app.get('/:id?', function(req, res){
   var id = req.params.id;
-  var posts = [];
 
   if (!id) {
     sendError(res, 'Please send a valid id');
   } else {
-    posts = getPosts(res, id);
+    getPosts(res, id);
   }
 
 });
