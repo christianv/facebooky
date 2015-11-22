@@ -106,7 +106,7 @@ var allowCrossDomain = function(req, res, next) {
 
 app.use(allowCrossDomain);
 //Possibly use app.all(...) here, then we wouldn't need to intercept OPTIONS?
-app.get('/:id?', function(req, res){
+app.get('/page/:id?', function(req, res){
   var id = req.params.id;
 
   if (!id) {
