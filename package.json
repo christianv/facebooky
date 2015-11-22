@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/christianv/facebooky/issues"
   },
-  "homepage": "https://github.com/christianv/facebooky"
+  "homepage": "https://github.com/christianv/facebooky",
+  "scripts": {
+    "preinstall": "preinstall.sh"
+  }
 }
