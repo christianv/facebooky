@@ -1,32 +1,11 @@
 #!/bin/sh
 
-set -e
+echo "Running preinstall.sh"
 
-BUILD_DIR=$1
-CACHE_DIR=$2
+echo $PATH
+pwd
+WORKING_DIR_BIN="$(pwd)/bin"
 
-# config
-VERSION="1.9.8"
+export PATH="$WORKING_DIR_BIN:$PATH"
 
-# Buildpack URL
-ARCHIVE_NAME=phantomjs-${VERSION}-linux-x86_64
-FILE_NAME=${ARCHIVE_NAME}.tar.bz2
-BUILDPACK_PHANTOMJS_PACKAGE=https://bitbucket.org/ariya/phantomjs/downloads/${FILE_NAME}
-
-mkdir -p $CACHE_DIR
-if ! [ -e $CACHE_DIR/$FILE_NAME ]; then
-  echo "-----> Fetching PhantomJS ${VERSION} binaries at ${BUILDPACK_PHANTOMJS_PACKAGE}"
-  curl $BUILDPACK_PHANTOMJS_PACKAGE -L -s -o $CACHE_DIR/$FILE_NAME
-fi
-
-echo "-----> Extracting PhantomJS ${VERSION} binaries to ${BUILD_DIR}/vendor/phantomjs"
-mkdir -p $CACHE_DIR/$ARCHIVE_NAME
-mkdir -p $BUILD_DIR/vendor
-tar jxf $CACHE_DIR/$FILE_NAME -C $CACHE_DIR
-mv $CACHE_DIR/$ARCHIVE_NAME $BUILD_DIR/vendor/phantomjs
-
-echo "-----> exporting PATH and LIBRARY_PATH"
-PROFILE_PATH="$BUILD_DIR/.profile.d/phantomjs.sh"
-mkdir -p $(dirname $PROFILE_PATH)
-echo 'export PATH="$PATH:$HOME/vendor/phantomjs/bin"' >> $PROFILE_PATH
-echo 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:vendor/phantomjs/lib"' >> $PROFILE_PATH
+echo $PATH
