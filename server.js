@@ -11,18 +11,24 @@ var sendError = function(res, errorMessage) {
   });
 };
 
-var parsePosts = function(body){
-  var $ = cheerio.load(body);
+var parsePosts = function(data){
+  var $ = cheerio.load(data);
   var posts = [];
-  //test
-  //console.log($('#pagelet_timeline_main_column').html());
 
-
-  //not functional
   $('.userContentWrapper').each(function(i, element) {
-    var text = $(this).children().attr('data-hover');
+
+    var time = $('[data-utime]', this).data('utime');
+
+    var text = $('.userContent', this).text() ||
+      $('.text_exposed_root', this).text().replace(' See More', '') ||
+      $('h5', this).text().split(' shared ')[1];
+
+    var url = $('[data-utime]', this).parent().attr('href');
+
     posts.push({
-      text: text
+      time: time,
+      text: text,
+      url: 'https://facebook.com/' + url
     });
   });
   return posts;
@@ -36,13 +42,35 @@ var getPosts = function(res, id) {
       console.log('Getting the html for ' + url);
       page.open(url, function(status) {
         console.log('status', status);
+
+        if (status !== 'success') {
+          return;
+        }
+
         page.evaluate(function () {
-          return document.querySelectorAll('div [role="main"]')[1].innerHTML;
-        }, function (result) {
-          console.log('body is ' + result);
+          return document.body.innerHTML;
+        }, function (body) {
+          var $ = cheerio.load(body, {
+            xmlMode: true
+          });
+
+
+          // Facebook hides this content in a comment, let's parse it out
+          var contents = $('code').contents();
+          var data = '';
+
+          for (var i = 0; i < contents.length; i++) {
+            if (contents[i].data.indexOf('userContentWrapper') !== -1) {
+              data = contents[i].data;
+              break;
+            }
+          }
+
+          var posts = parsePosts(data);
 
           res.send({
-            'id': result
+            'id': id,
+            posts: posts
           });
 
           ph.exit();
