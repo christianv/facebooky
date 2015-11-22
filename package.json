@@ -27,6 +27,6 @@
   },
   "homepage": "https://github.com/christianv/facebooky",
   "scripts": {
-    "preinstall": "preinstall.sh"
+    "preinstall": "scripts/preinstall.sh"
   }
 }
