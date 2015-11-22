@@ -48,30 +48,37 @@ var getPosts = function(res, id) {
         }
 
         page.evaluate(function () {
-          return document.body.innerHTML;
+          return document && document.body && document.body.innerHTML;
         }, function (body) {
-          var $ = cheerio.load(body, {
-            xmlMode: true
-          });
-
-
-          // Facebook hides this content in a comment, let's parse it out
-          var contents = $('code').contents();
-          var data = '';
-
-          for (var i = 0; i < contents.length; i++) {
-            if (contents[i].data.indexOf('userContentWrapper') !== -1) {
-              data = contents[i].data;
-              break;
-            }
+          if (!body) {
+            res.send({
+              'id': id
+            });
           }
+          else {
+            var $ = cheerio.load(body, {
+              xmlMode: true
+            });
 
-          var posts = parsePosts(data);
 
-          res.send({
-            'id': id,
-            posts: posts
-          });
+            // Facebook hides this content in a comment, let's parse it out
+            var contents = $('code').contents();
+            var data = '';
+
+            for (var i = 0; i < contents.length; i++) {
+              if (contents[i].data.indexOf('userContentWrapper') !== -1) {
+                data = contents[i].data;
+                break;
+              }
+            }
+
+            var posts = parsePosts(data);
+
+            res.send({
+              'id': id,
+              posts: posts
+            });
+          }
 
           ph.exit();
         });
