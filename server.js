@@ -28,7 +28,7 @@ var parsePosts = function(data){
     posts.push({
       time: time,
       text: text,
-      url: 'https://facebook.com/' + url
+      url: 'https://facebook.com' + url
     });
   });
   return posts;
