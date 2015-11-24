@@ -38,53 +38,56 @@ var parsePosts = function(data){
 var getPosts = function(res, id) {
   phantom.create(function(ph){
     ph.createPage(function (page){
-      var url = 'http://facebook.com/' + id;
-      console.log('Getting the html for ' + url);
+      var fburl = 'http://facebook.com/' + id;
+      console.log('Getting the html for ' + fburl);
 
-      page.open(url, function(status) {
-        console.log('status', status);
+      var renderPage = function(url) {
+        page.open(url, function(status) {
+          console.log('status', status);
 
-        if (status !== 'success') {
-          ph.exit();
-          return;
-        }
-
-        page.evaluate(function () {
-          return document && document.body && document.body.innerHTML;
-        }, function (body) {
-          if (!body) {
-            res.send({
-              'id': id
-            });
+          if (status !== 'success') {
+            ph.exit();
+            return;
           }
-          else {
-            var $ = cheerio.load(body, {
-              xmlMode: true
-            });
 
+          page.evaluate(function () {
+            return document && document.body && document.body.innerHTML;
+          }, function (body) {
+            if (!body) {
+              res.send({
+                'id': id
+              });
+            }
+            else {
+              var $ = cheerio.load(body, {
+                xmlMode: true
+              });
 
-            // Facebook hides this content in a comment, let's parse it out
-            var contents = $('code').contents();
-            var data = '';
+              // Facebook hides this content in a comment, let's parse it out
+              var contents = $('code').contents();
+              var data = '';
 
-            for (var i = 0; i < contents.length; i++) {
-              if (contents[i].data.indexOf('userContentWrapper') !== -1) {
-                data = contents[i].data;
-                break;
+              for (var i = 0; i < contents.length; i++) {
+                if (contents[i].data.indexOf('userContentWrapper') !== -1) {
+                  data = contents[i].data;
+                  break;
+                }
               }
+console.log(url, data.length);
+              var posts = parsePosts(data);
+
+              res.send({
+                id: id,
+                posts: posts
+              });
             }
 
-            var posts = parsePosts(data);
-
-            res.send({
-              'id': id,
-              posts: posts
-            });
-          }
-
-          ph.exit();
+            ph.exit();
+          });
         });
-      });
+      };
+
+      renderPage(fburl);
     });
   });
 };
